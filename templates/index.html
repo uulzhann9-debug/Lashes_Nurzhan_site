@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lashes Nurzhan — Запись</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Запись на наращивание ресниц 💅</h1>
+
+    <form action="/add" method="post" enctype="multipart/form-data">
+        <label>Имя:</label>
+        <input type="text" name="name" required><br>
+
+        <label>Телефон:</label>
+        <input type="tel" name="phone" required><br>
+
+        <label>Эффект:</label>
+        <select name="effect">
+            {% for e in prices.keys() %}
+                <option value="{{ e }}">{{ e }}</option>
+            {% endfor %}
+        </select><br>
+
+        <label>Мастер:</label>
+        <select name="master">
+            <option>Топ мастер</option>
+            <option>Мастер</option>
+            <option>Стажёр</option>
+            <option>Ученица</option>
+        </select><br>
+
+        <label>Дата:</label>
+        <input type="date" name="date" required><br>
+
+        <label>Время:</label>
+        <input type="time" name="time" required><br>
+
+        <label>Фото (опционально):</label>
+        <input type="file" name="photo" accept="image/*"><br><br>
+
+        <button type="submit">Записаться</button>
+    </form>
+
+    <p><a href="/assign">Список всех записей</a></p>
+    <p><a href="/admin">Админ-панель</a></p>
+</body>
+</html>

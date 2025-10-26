@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Админ-панель — Lashes Nurzhan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Админ-панель 💻</h1>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Эффект</th>
+            <th>Мастер</th>
+            <th>Цена</th>
+        </tr>
+        {% for effect, masters in prices.items() %}
+            {% for master, price in masters.items() %}
+                <tr>
+                    <td>{{ effect }}</td>
+                    <td>{{ master }}</td>
+                    <td>
+                        <input type="number" id="{{ effect }}_{{ master }}" value="{{ price }}">
+                        <button onclick="updatePrice('{{ effect }}', '{{ master }}')">💾</button>
+                    </td>
+                </tr>
+            {% endfor %}
+        {% endfor %}
+    </table>
+
+    <input type="password" id="admin_pass" placeholder="Введите пароль"><br><br>
+
+    <script>
+        async function updatePrice(effect, master) {
+            const price = document.getElementById(`${effect}_${master}`).value;
+            const password = document.getElementById("admin_pass").value;
+
+            const res = await fetch('/update_price', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({effect, master, price, password})
+            });
+            const data = await res.json();
+            alert(data.message || "Готово!");
+        }
+    </script>
+
+    <p><a href="/">← На главную</a></p>
+</body>
+</html>

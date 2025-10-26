@@ -1,0 +1,58 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Записи клиентов — Lashes Nurzhan</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <h1>Список записей 💖</h1>
+
+    <table border="1" cellpadding="5">
+        <tr>
+            <th>Имя</th>
+            <th>Телефон</th>
+            <th>Эффект</th>
+            <th>Мастер</th>
+            <th>Дата</th>
+            <th>Время</th>
+            <th>Фото</th>
+            <th>Статус</th>
+            <th>Действия</th>
+        </tr>
+        {% for r in records %}
+        <tr>
+            <td>{{ r.name }}</td>
+            <td>{{ r.phone }}</td>
+            <td>{{ r.effect }}</td>
+            <td>{{ r.master }}</td>
+            <td>{{ r.date }}</td>
+            <td>{{ r.time }}</td>
+            <td>
+                {% if r.photo %}
+                    <img src="{{ url_for('static', filename='uploads/' ~ r.photo) }}" width="80">
+                {% else %}
+                    —
+                {% endif %}
+            </td>
+            <td>{{ r.status }}</td>
+            <td>
+                {% if r.status != 'Подтверждена' %}
+                    <form action="/confirm/{{ r.id }}" method="post" style="display:inline;">
+                        <button type="submit">✅ Подтвердить</button>
+                    </form>
+                {% endif %}
+                {% if r.status != 'Отменена' %}
+                    <form action="/cancel/{{ r.id }}" method="post" style="display:inline;">
+                        <button type="submit">❌ Отменить</button>
+                    </form>
+                {% endif %}
+            </td>
+        </tr>
+        {% endfor %}
+    </table>
+
+    <p><a href="/">← На главную</a></p>
+</body>
+</html>
