@@ -9,11 +9,16 @@ app.secret_key = "super_secret_key"
 # Папка для загрузки фото
 app.config["UPLOAD_FOLDER"] = "static/uploads"
 
-# База данных
+# Имя файла базы данных
 DB_FILE = "prices.db"
 
-# Создаём таблицу, если её нет
+# ✅ Пересоздание базы данных при запуске
 def init_db():
+    # Если база уже есть — удалить, чтобы создать заново
+    if os.path.exists(DB_FILE):
+        os.remove(DB_FILE)
+        print("🧹 Старый файл базы данных удалён")
+
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
     c.execute("""
@@ -27,7 +32,9 @@ def init_db():
     """)
     conn.commit()
     conn.close()
+    print("✅ Новая база данных успешно создана!")
 
+# Создаём базу
 init_db()
 
 # Главная страница
@@ -75,7 +82,7 @@ def edit():
             filename = secure_filename(photo.filename)
             upload_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
 
-            # Создаём папку, если её нет
+            # Создаём папку, если нет
             if not os.path.exists(app.config["UPLOAD_FOLDER"]):
                 os.makedirs(app.config["UPLOAD_FOLDER"])
             photo.save(upload_path)
@@ -91,6 +98,7 @@ def edit():
         return redirect(url_for('index'))
 
     return render_template('assign.html')
+
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
