@@ -6,14 +6,13 @@ from werkzeug.utils import secure_filename
 app = Flask(__name__)
 app.secret_key = "super_secret_key"
 
-
+# Папка для загрузки фото
 app.config["UPLOAD_FOLDER"] = "static/uploads"
-os.makedirs(app.config["UPLOAD_FOLDER"], exist_ok=True)
 
-
+# База данных
 DB_FILE = "prices.db"
 
-
+# Создаём таблицу, если её нет
 def init_db():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -31,7 +30,7 @@ def init_db():
 
 init_db()
 
-
+# Главная страница
 @app.route('/')
 def index():
     conn = sqlite3.connect(DB_FILE)
@@ -47,11 +46,10 @@ def index():
 
     return render_template('index.html', price=price, date=date, time=time, photo=photo)
 
-
-
+# Страница входа администратора
 @app.route('/admin', methods=['GET', 'POST'])
 def admin():
-    password = "nurzhan123"  
+    password = "nurzhan123"  # Пароль администратора
     
     if request.method == "POST" and "login" in request.form:
         entered_password = request.form.get("password")
@@ -63,8 +61,7 @@ def admin():
 
     return render_template('admin.html')
 
-
-
+# Страница редактирования данных
 @app.route('/edit', methods=['GET', 'POST'])
 def edit():
     if request.method == "POST":
@@ -76,7 +73,12 @@ def edit():
         filename = None
         if photo and photo.filename != "":
             filename = secure_filename(photo.filename)
-            photo.save(os.path.join(app.config["UPLOAD_FOLDER"], filename))
+            upload_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+
+            # Создаём папку, если её нет
+            if not os.path.exists(app.config["UPLOAD_FOLDER"]):
+                os.makedirs(app.config["UPLOAD_FOLDER"])
+            photo.save(upload_path)
 
         conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
@@ -89,7 +91,6 @@ def edit():
         return redirect(url_for('index'))
 
     return render_template('assign.html')
-
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
