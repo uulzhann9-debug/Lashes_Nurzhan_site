@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Lash App — Записи</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fafafa; }
+    table { width: 90%; margin: 20px auto; border-collapse: collapse; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background-color: #f2f2f2; }
+    form { width: 90%; margin: 20px auto; text-align: center; background: white; padding: 15px; border-radius: 8px; box-shadow: 0 0 6px rgba(0,0,0,0.1); }
+    input, select { margin: 5px; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+    button { padding: 8px 14px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+    a { text-decoration: none; color: #007BFF; }
+    a:hover { text-decoration: underline; }
+    .edit-btn { cursor: pointer; color: #007BFF; margin-left: 5px; }
+    #editModal {
+      display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5); justify-content: center; align-items: center;
+    }
+    #editBox {
+      background: white; padding: 20px; border-radius: 8px; text-align: center; min-width: 260px;
+    }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">Добавить запись</h2>
+
+  <form action="/add" method="POST" enctype="multipart/form-data">
+    <input name="name" placeholder="Имя" required>
+    <input name="phone" placeholder="Телефон" required>
+   
+
+
+    <select id="effect" name="effect" required>
+      <option value="">Выберите эффект</option>
+      {% for e in prices %}
+        <option value="{{ e }}">{{ Классика }}</option>
+        <option value="{{ e }}">{{ 2D }}</option>
+        <option value="{{ e }}">{{ 3D }}</option>
+        <option value="{{ e }}">{{ Лучики }}</option>
+        <option value="{{ e }}">{{ Мокрый }}</option>
+        <option value="{{ e }}">{{ Лисий }}</option>
+        <option value="{{ e }}">{{ Кукольный }}</option>
+      {% endfor %}
+    </select>
+
+    <select id="master" name="master" required>
+      <option value="">Выберите мастера</option>
+      <option>Топ мастер</option>
+      <option>Мастер</option>
+      <option>Стажёр</option>
+      <option>Ученица</option>
+    </select>
+
+    <input id="price" name="price" placeholder="Цена" readonly>
+    <span class="edit-btn" id="editPriceBtn" style="display:none;">✏️</span>
+
+    <input name="date" type="date" required>
+    <input name="time" type="time" required>
+    <input name="photo" type="file" accept="image/*">
+    <button type="submit">Записаться</button>
+  </form>
+
+  <!-- Модал терезе -->
+  <div id="editModal">
+    <div id="editBox">
+      <h3>Редактировать цену</h3>
+      <p id="modalTitle"></p>
+      <input type="number" id="newPrice" placeholder="Новая цена" required><br><br>
+      <input type="password" id="password" placeholder="Пароль (admin123)" required><br><br>
+      <button onclick="savePrice()">Сактоо</button>
+      <button onclick="closeModal()">Жабуу</button>
+    </div>
+  </div>
+
+  <script>
+    const prices = {{ prices|tojson }};
+    const effectSelect = document.getElementById('effect');
+    const masterSelect = document.getElementById('master');
+    const priceInput = document.getElementById('price');
+    const editBtn = document.getElementById('editPriceBtn');
+    let currentEffect = "", currentMaster = "";
+
+    function updatePrice() {
+      currentEffect = effectSelect.value;
+      currentMaster = masterSelect.value;
+      if (currentEffect && currentMaster && prices[currentEffect] && prices[currentEffect][currentMaster]) {
+        priceInput.value = prices[currentEffect][currentMaster] + " сом";
+        editBtn.style.display = "inline";
+      } else {
+        priceInput.value = "";
+        editBtn.style.display = "none";
+      }
+    }
+
+    effectSelect.addEventListener('change', updatePrice);
+    masterSelect.addEventListener('change', updatePrice);
+
+    // --- Модал ачуу/жабуу ---
+    const modal = document.getElementById('editModal');
+    const modalTitle = document.getElementById('modalTitle');
+    const newPriceInput = document.getElementById('newPrice');
+    const passwordInput = document.getElementById('password');
+
+    editBtn.addEventListener('click', () => {
+      if (!currentEffect || !currentMaster) return;
+      modal.style.display = 'flex';
+      modalTitle.textContent = `${currentEffect} — ${currentMaster}`;
+    });
+
+    function closeModal() {
+      modal.style.display = 'none';
+      newPriceInput.value = "";
+      passwordInput.value = "";
+    }
+
+    async function savePrice() {
+      const newPrice = newPriceInput.value;
+      const password = passwordInput.value;
+      const res = await fetch('/update_price', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ effect: currentEffect, master: currentMaster, price: newPrice, password })
+      });
+      const data = await res.json();
+      if (data.status === 'success') {
+        alert('Цена успешно обновлена!');
+        prices[currentEffect][currentMaster] = newPrice;
+        updatePrice();
+        closeModal();
+      } else {
+        alert(data.message || 'Ошибка!');
+      }
+    }
+  </script>
+</body>
+</html>

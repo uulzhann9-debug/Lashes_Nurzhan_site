@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <title>Lashes_Nurzhan — Запись</title>
+  <style>
+    body { font-family: Arial, sans-serif; background: #fefefe; color:#333; }
+    form { width: 90%; margin: 20px auto; text-align: center; background: white; padding: 20px; border-radius: 8px; box-shadow: 0 0 6px rgba(0,0,0,0.1); }
+    input, select { margin: 5px; padding: 8px; border-radius: 4px; border: 1px solid #ccc; }
+    button { padding: 8px 14px; background-color: #4CAF50; color: white; border: none; border-radius: 4px; cursor: pointer; }
+    button:hover { background-color: #45a049; }
+    table { width: 90%; margin: 30px auto; border-collapse: collapse; box-shadow: 0 0 8px rgba(0,0,0,0.1); }
+    th, td { border: 1px solid #ccc; padding: 8px; text-align: center; }
+    th { background: #eee; }
+  </style>
+</head>
+<body>
+  <h2 style="text-align:center;">Запись на процедуру</h2>
+  <form action="/add" method="POST" enctype="multipart/form-data">
+    <input name="name" placeholder="Имя" required>
+    <input name="phone" placeholder="Телефон" required>
+    <select id="effect" name="effect" required>
+      <option value="">Выберите эффект</option>
+      {% for e in prices.keys() %}
+      <option value="{{ e }}">{{ e }}</option>
+      {% endfor %}
+    </select>
+    <select id="master" name="master" required>
+      <option value="">Выберите мастера</option>
+      <option>Топ мастер</option>
+      <option>Мастер</option>
+      <option>Стажёр</option>
+      <option>Ученица</option>
+    </select>
+    <input id="price" name="price" placeholder="Цена" readonly>
+    <input name="date" type="date" required>
+    <input name="time" type="time" required>
+    <input name="photo" type="file" accept="image/*">
+    <button type="submit">Записаться</button>
+  </form>
+
+  <h3 style="text-align:center;">Текущие записи</h3>
+  <table>
+    <tr>
+      <th>Имя</th><th>Телефон</th><th>Эффект</th><th>Мастер</th><th>Цена</th><th>Дата</th><th>Время</th><th>Фото</th><th>Действие</th>
+    </tr>
+    {% for c in clients %}
+    <tr>
+      <td>{{ c.name }}</td>
+      <td>{{ c.phone }}</td>
+      <td>{{ c.effect }}</td>
+      <td>{{ c.master }}</td>
+      <td>{{ c.price }}</td>
+      <td>{{ c.date }}</td>
+      <td>{{ c.time }}</td>
+      <td>{% if c.photo %}<img src="{{ c.photo }}" width="60">{% endif %}</td>
+      <td><a href="{{ url_for('delete', index=loop.index0) }}">Удалить</a></td>
+    </tr>
+    {% endfor %}
+  </table>
+
+  <script>
+    const prices = {{ prices|tojson }};
+    const eSel = document.getElementById('effect');
+    const mSel = document.getElementById('master');
+    const pInput = document.getElementById('price');
+    function updatePrice() {
+      const e = eSel.value, m = mSel.value;
+      if (prices[e] && prices[e][m]) pInput.value = prices[e][m] + " сом";
+      else pInput.value = "";
+    }
+    eSel.addEventListener('change', updatePrice);
+    mSel.addEventListener('change', updatePrice);
+  </script>
+</body>
+</html>
