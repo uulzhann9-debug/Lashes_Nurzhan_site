@@ -3,47 +3,69 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Lashes Nurzhan — Запись</title>
+    <title>Lashes Nurzhan — Актуальная цена</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #fff9fb;
+            color: #333;
+            text-align: center;
+            padding: 30px;
+        }
+        h1 {
+            color: #d63384;
+            font-size: 2em;
+        }
+        .card {
+            background-color: white;
+            display: inline-block;
+            padding: 25px;
+            border-radius: 16px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            margin-top: 20px;
+            width: 300px;
+        }
+        .photo {
+            width: 100%;
+            border-radius: 10px;
+            margin-bottom: 10px;
+        }
+        .details {
+            font-size: 1.1em;
+            line-height: 1.5em;
+        }
+        .admin-link {
+            margin-top: 20px;
+            display: block;
+            text-decoration: none;
+            color: #fff;
+            background-color: #d63384;
+            padding: 10px 20px;
+            border-radius: 10px;
+            transition: background 0.3s;
+        }
+        .admin-link:hover {
+            background-color: #b11e69;
+        }
+    </style>
 </head>
 <body>
-    <h1>Запись на наращивание ресниц 💅</h1>
 
-    <form action="/add" method="post" enctype="multipart/form-data">
-        <label>Имя:</label>
-        <input type="text" name="name" required><br>
+    <h1>🌸 Текущая цена услуг Lashes Nurzhan</h1>
 
-        <label>Телефон:</label>
-        <input type="tel" name="phone" required><br>
+    <div class="card">
+        {% if photo %}
+            <img src="{{ url_for('static', filename='uploads/' + photo) }}" alt="Фото" class="photo">
+        {% endif %}
+        <div class="details">
+            <p><b>Цена:</b> {{ price }}</p>
+            <p><b>Дата обновления:</b> {{ date }}</p>
+            <p><b>Время обновления:</b> {{ time }}</p>
+        </div>
+    </div>
 
-        <label>Эффект:</label>
-        <select name="effect">
-            {% for e in prices.keys() %}
-                <option value="{{ e }}">{{ e }}</option>
-            {% endfor %}
-        </select><br>
+    <a class="admin-link" href="{{ url_for('admin') }}">🔐 Войти как админ</a>
 
-        <label>Мастер:</label>
-        <select name="master">
-            <option>Топ мастер</option>
-            <option>Мастер</option>
-            <option>Стажёр</option>
-            <option>Ученица</option>
-        </select><br>
-
-        <label>Дата:</label>
-        <input type="date" name="date" required><br>
-
-        <label>Время:</label>
-        <input type="time" name="time" required><br>
-
-        <label>Фото (опционально):</label>
-        <input type="file" name="photo" accept="image/*"><br><br>
-
-        <button type="submit">Записаться</button>
-    </form>
-
-    <p><a href="/assign">Список всех записей</a></p>
-    <p><a href="/admin">Админ-панель</a></p>
 </body>
 </html>
