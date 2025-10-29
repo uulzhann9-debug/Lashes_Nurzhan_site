@@ -50,7 +50,8 @@ def index():
 @app.route("/admin")
 def admin():
     # Исправлено: добавляем пустой словарь, чтобы не было ошибки
-    return render_template("admin.html", prices={})
+    return render_template('admin.html', prices={})
+
 
 @app.route("/assign", methods=["GET", "POST"])
 def edit():
