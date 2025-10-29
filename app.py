@@ -1,38 +1,38 @@
-from flask import Flask, render_template, request, redirect, url_for, flash
-import sqlite3
 import os
-from werkzeug.utils import secure_filename
+import sqlite3
+from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
-app.secret_key = "super_secret_key"
+app.secret_key = "secret_key"
 
 # Папка для загрузки фото
-UPLOAD_FOLDER = "static/uploads"
-os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+UPLOAD_FOLDER = os.path.join("static", "uploads")
+app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
 
+# Проверяем — если нет папки, создаём
+if not os.path.exists(app.config["UPLOAD_FOLDER"]):
+    os.makedirs(app.config["UPLOAD_FOLDER"])
+
+# Имя базы данных
 DB_FILE = "prices.db"
 
-# ✅ Инициализация базы данных
-def init_db():
-    conn = sqlite3.connect(DB_FILE)
-    c = conn.cursor()
-    c.execute("""
-        CREATE TABLE IF NOT EXISTS prices (
+# Если базы нет — создаём
+if not os.path.exists(DB_FILE):
+    with sqlite3.connect(DB_FILE) as conn:
+        c = conn.cursor()
+        c.execute("""
+        CREATE TABLE prices (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             price TEXT,
             date TEXT,
             time TEXT,
             photo TEXT
         )
-    """)
-    conn.commit()
-    conn.close()
-    print("✅ База данных успешно создана или уже существует.")
+        """)
+        conn.commit()
+    print("✅ Новая база данных успешно создана!")
 
-init_db()
-
-# ✅ Главная страница
-@app.route('/')
+@app.route("/")
 def index():
     conn = sqlite3.connect(DB_FILE)
     c = conn.cursor()
@@ -40,48 +40,45 @@ def index():
     row = c.fetchone()
     conn.close()
 
-    price, date, time, photo = ("—", "—", "—", None) if not row else row
-    return render_template('index.html', price=price, date=date, time=time, photo=photo)
+    if row:
+        price, date, time, photo = row
+    else:
+        price, date, time, photo = "Нет данных", "-", "-", None
 
-# ✅ Страница входа для админа
-@app.route('/admin', methods=['GET', 'POST'])
+    return render_template("index.html", price=price, date=date, time=time, photo=photo)
+
+@app.route("/admin")
 def admin():
-    password = "nurzhan123"
-    if request.method == "POST":
-        entered_password = request.form.get("password")
-        if entered_password == password:
-            return redirect(url_for('edit'))
-        else:
-            flash("❌ Неверный пароль", "error")
-    return render_template('admin.html')
+    # Исправлено: добавляем пустой словарь, чтобы не было ошибки
+    return render_template("admin.html", prices={})
 
-# ✅ Страница изменения данных
-@app.route('/edit', methods=['GET', 'POST'])
+@app.route("/assign", methods=["GET", "POST"])
 def edit():
     if request.method == "POST":
-        price = request.form.get("price")
-        date = request.form.get("date")
-        time = request.form.get("time")
-        photo = request.files.get("photo")
+        price = request.form["price"]
+        date = request.form["date"]
+        time = request.form["time"]
+        photo = request.files["photo"]
 
         filename = None
-        if photo and photo.filename:
-            filename = secure_filename(photo.filename)
-            photo.save(os.path.join(UPLOAD_FOLDER, filename))
+        if photo and photo.filename != "":
+            filename = photo.filename
+            upload_path = os.path.join(app.config["UPLOAD_FOLDER"], filename)
+            photo.save(upload_path)
 
         conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
-        c.execute("INSERT INTO prices (price, date, time, photo) VALUES (?, ?, ?, ?)",
-                  (price, date, time, filename))
+        c.execute(
+            "INSERT INTO prices (price, date, time, photo) VALUES (?, ?, ?, ?)",
+            (price, date, time, filename)
+        )
         conn.commit()
         conn.close()
 
         flash("✅ Данные успешно обновлены!", "success")
-        return redirect(url_for('index'))
+        return redirect(url_for("index"))
 
-    return render_template('assign.html')
+    return render_template("assign.html")
 
-# ✅ Запуск приложения
 if __name__ == "__main__":
-    port = int(os.environ.get("PORT", 10000))  # Render использует порт 10000
-    app.run(host="0.0.0.0", port=port)
+    app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
