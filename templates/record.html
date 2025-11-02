@@ -46,26 +46,21 @@
 
         <select name="effect" required>
             <option value="">Выберите эффект ресниц</option>
-            {% for e in effects %}
-                <option value="{{ e }}">{{ Классика }}</option>
-                <option value="{{ e }}">{{ 2D }}</option>
-                <option value="{{ e }}">{{ 3D }}</option>
-                <option value="{{ e }}">{{ Лучики }}</option>
-                <option value="{{ e }}">{{ Мокрый }}</option>
-                <option value="{{ e }}">{{ Лисий }}</option>
-                <option value="{{ e }}">{{ Кукольный }}</option>
-            {% endfor %}
+            <option value="Классика">Классика</option>
+            <option value="2D">2D</option>
+            <option value="3D">3D</option>
+            <option value="Лучики">Лучики</option>
+            <option value="Мокрый">Мокрый эффект</option>
+            <option value="Лисий">Лисий эффект</option>
+            <option value="Кукольный">Кукольный эффект</option>
         </select>
 
         <select name="master" required>
             <option value="">Выберите мастера</option>
-            {% for m in masters %}
-                <option value="{{ m }}">{{ Топ мастер }}</option>
-                <option value="{{ m }}">{{  Мастер }}</option>
-                <option value="{{ m }}">{{ Мастер }}</option>
-                <option value="{{ m }}">{{ Стажер }}</option>
-                <option value="{{ m }}">{{ Ученица }}</option>
-            {% endfor %}
+            <option value="Топ мастер">Топ мастер</option>
+            <option value="Мастер">Мастер</option>
+            <option value="Стажер">Стажер</option>
+            <option value="Ученица">Ученица</option>
         </select>
 
         <input type="date" name="date" required>

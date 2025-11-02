@@ -6,20 +6,24 @@ from flask import Flask, render_template, request, redirect, url_for, flash
 app = Flask(__name__)
 app.secret_key = "secret_key"
 
-# === Папка для загрузки фото ===
+# === НАСТРОЙКИ ===
 UPLOAD_FOLDER = os.path.join("static", "uploads")
-app.config["UPLOAD_FOLDER"] = UPLOAD_FOLDER
-
-if not os.path.exists(app.config["UPLOAD_FOLDER"]):
-    os.makedirs(app.config["UPLOAD_FOLDER"])
-
-# === База с ценами ===
 DB_FILE = "prices.db"
+
+# Твой Telegram Bot Token и ID
+BOT_TOKEN = "8433998136:AAGw7DHJTXfuRsHIozU-Cf8PimJVFtiECC8"
+CHAT_ID = "7541525471"
+
+# Создаём нужные папки, если их нет
+if not os.path.exists(UPLOAD_FOLDER):
+    os.makedirs(UPLOAD_FOLDER)
+
+# Создаём базу, если нет
 if not os.path.exists(DB_FILE):
     with sqlite3.connect(DB_FILE) as conn:
         c = conn.cursor()
         c.execute("""
-        CREATE TABLE prices (
+        CREATE TABLE IF NOT EXISTS prices (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             price TEXT,
             date TEXT,
@@ -27,16 +31,8 @@ if not os.path.exists(DB_FILE):
             photo TEXT
         )
         """)
-        conn.commit()
-    print("✅ База цен создана!")
-
-# === База с клиентами ===
-CLIENTS_DB = "clients.db"
-if not os.path.exists(CLIENTS_DB):
-    with sqlite3.connect(CLIENTS_DB) as conn:
-        c = conn.cursor()
         c.execute("""
-        CREATE TABLE clients (
+        CREATE TABLE IF NOT EXISTS records (
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             name TEXT,
             phone TEXT,
@@ -47,24 +43,10 @@ if not os.path.exists(CLIENTS_DB):
         )
         """)
         conn.commit()
-    print("✅ База клиентов создана!")
+    print("✅ База данных успешно создана!")
 
 
-# === Telegram уведомления ===
-BOT_TOKEN = "8433998136:AAGw7DHJTXfuRsHIozU-Cf8PimJVFtiECC8"
-CHAT_ID = "7541525471"  # ← твой ID из @userinfobot
-
-def send_telegram_message(text):
-    """Отправка уведомления в Telegram"""
-    try:
-        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
-        payload = {"chat_id": CHAT_ID, "text": text}
-        requests.post(url, data=payload)
-    except Exception as e:
-        print("Ошибка при отправке Telegram:", e)
-
-
-# === Главная страница ===
+# === ГЛАВНАЯ СТРАНИЦА ===
 @app.route("/")
 def index():
     conn = sqlite3.connect(DB_FILE)
@@ -81,18 +63,13 @@ def index():
     return render_template("index.html", price=price, date=date, time=time, photo=photo)
 
 
-# === Админ ===
+# === АДМИН-ПАНЕЛЬ ===
 @app.route("/admin")
 def admin():
-    conn = sqlite3.connect(CLIENTS_DB)
-    c = conn.cursor()
-    c.execute("SELECT name, phone, effect, master, date, time FROM clients ORDER BY id DESC")
-    clients = c.fetchall()
-    conn.close()
-    return render_template("admin.html", clients=clients)
+    return render_template("admin.html", prices={})
 
 
-# === Страница обновления цен ===
+# === ОБНОВЛЕНИЕ ЦЕН ===
 @app.route("/assign", methods=["GET", "POST"])
 def edit():
     if request.method == "POST":
@@ -109,8 +86,10 @@ def edit():
 
         conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
-        c.execute("INSERT INTO prices (price, date, time, photo) VALUES (?, ?, ?, ?)",
-                  (price, date, time, filename))
+        c.execute(
+            "INSERT INTO prices (price, date, time, photo) VALUES (?, ?, ?, ?)",
+            (price, date, time, filename)
+        )
         conn.commit()
         conn.close()
 
@@ -120,12 +99,9 @@ def edit():
     return render_template("assign.html")
 
 
-# === Страница записи клиентов ===
+# === ЗАПИСЬ КЛИЕНТА ===
 @app.route("/record", methods=["GET", "POST"])
 def record():
-    effects = ["Классика", "2D", "3D", "Wet Look", "Fox", "L Doll"]
-    masters = ["Нуржан", "Айгерим", "Мадина"]
-
     if request.method == "POST":
         name = request.form["name"]
         phone = request.form["phone"]
@@ -134,33 +110,42 @@ def record():
         date = request.form["date"]
         time = request.form["time"]
 
-        conn = sqlite3.connect(CLIENTS_DB)
+        # Сохраняем запись в БД
+        conn = sqlite3.connect(DB_FILE)
         c = conn.cursor()
-        c.execute(
-            "INSERT INTO clients (name, phone, effect, master, date, time) VALUES (?, ?, ?, ?, ?, ?)",
-            (name, phone, effect, master, date, time)
-        )
+        c.execute("""
+            INSERT INTO records (name, phone, effect, master, date, time)
+            VALUES (?, ?, ?, ?, ?, ?)
+        """, (name, phone, effect, master, date, time))
         conn.commit()
         conn.close()
 
-        # === Отправка уведомления в Telegram ===
-        msg = (
-            f"📅 Новая запись!\n"
-            f"👤 Имя: {name}\n"
+        # Отправляем уведомление в Telegram
+        message = (
+            f"📅 Новая запись!\n\n"
+            f"👩 Имя: {name}\n"
             f"📞 Телефон: {phone}\n"
-            f"💫 Эффект: {effect}\n"
-            f"💁‍♀️ Мастер: {master}\n"
+            f"✨ Эффект: {effect}\n"
+            f"💅 Мастер: {master}\n"
             f"🗓 Дата: {date}\n"
             f"⏰ Время: {time}"
         )
-        send_telegram_message(msg)
 
-        flash("✅ Вы успешно записались!", "success")
+        try:
+            requests.post(
+                f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage",
+                data={"chat_id": CHAT_ID, "text": message}
+            )
+        except Exception as e:
+            print("Ошибка при отправке уведомления в Telegram:", e)
+
+        flash("✅ Вы успешно записались! Мы свяжемся с вами.", "success")
         return redirect(url_for("index"))
 
-    return render_template("record.html", effects=effects, masters=masters)
+    return render_template("record.html")
 
 
+# === ЗАПУСК ===
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=int(os.environ.get("PORT", 10000)))
 
