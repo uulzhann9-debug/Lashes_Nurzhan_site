@@ -1,5 +1,6 @@
 import os
 import sqlite3
+import requests
 from flask import Flask, render_template, request, redirect, url_for, flash
 
 app = Flask(__name__)
@@ -47,6 +48,20 @@ if not os.path.exists(CLIENTS_DB):
         """)
         conn.commit()
     print("✅ База клиентов создана!")
+
+
+# === Telegram уведомления ===
+BOT_TOKEN = "8433998136:AAGw7DHJTXfuRsHIozU-Cf8PimJVFtiECC8"
+CHAT_ID = "7541525471"  # ← твой ID из @userinfobot
+
+def send_telegram_message(text):
+    """Отправка уведомления в Telegram"""
+    try:
+        url = f"https://api.telegram.org/bot{BOT_TOKEN}/sendMessage"
+        payload = {"chat_id": CHAT_ID, "text": text}
+        requests.post(url, data=payload)
+    except Exception as e:
+        print("Ошибка при отправке Telegram:", e)
 
 
 # === Главная страница ===
@@ -127,6 +142,18 @@ def record():
         )
         conn.commit()
         conn.close()
+
+        # === Отправка уведомления в Telegram ===
+        msg = (
+            f"📅 Новая запись!\n"
+            f"👤 Имя: {name}\n"
+            f"📞 Телефон: {phone}\n"
+            f"💫 Эффект: {effect}\n"
+            f"💁‍♀️ Мастер: {master}\n"
+            f"🗓 Дата: {date}\n"
+            f"⏰ Время: {time}"
+        )
+        send_telegram_message(msg)
 
         flash("✅ Вы успешно записались!", "success")
         return redirect(url_for("index"))
