@@ -2,21 +2,15 @@
 <html lang="ru">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Lashes Nurzhan — Актуальная цена</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
     <style>
         body {
+            background-color: #f6a6ceff;
             font-family: 'Arial', sans-serif;
-            background-color: #fea1f8ff;
-            color: #333;
             text-align: center;
-            padding: 30px;
+            padding: 40px;
         }
-        h1 {
-            color: #d63384;
-            font-size: 2em;
-        }
+        h1 { color: #b30059; }
         .card {
             background-color: white;
             display: inline-block;
@@ -24,48 +18,37 @@
             border-radius: 16px;
             box-shadow: 0 4px 10px rgba(0,0,0,0.1);
             margin-top: 20px;
-            width: 300px;
+            width: 320px;
         }
         .photo {
             width: 100%;
             border-radius: 10px;
             margin-bottom: 10px;
         }
-        .details {
-            font-size: 1.1em;
-            line-height: 1.5em;
-        }
         .admin-link {
-            margin-top: 20px;
             display: block;
-            text-decoration: none;
-            color: #fff;
+            margin-top: 20px;
             background-color: #d63384;
+            color: white;
+            text-decoration: none;
             padding: 10px 20px;
             border-radius: 10px;
-            transition: background 0.3s;
         }
-        .admin-link:hover {
-            background-color: #b11e69;
-        }
+        .admin-link:hover { background-color: #b11e69; }
     </style>
 </head>
 <body>
-
     <h1>🌸 Текущая цена услуг Lashes Nurzhan</h1>
-
     <div class="card">
         {% if photo %}
-            <img src="{{ url_for('static', filename='uploads/' + photo) }}" alt="Фото" class="photo">
+            <img src="{{ url_for('static', filename='uploads/' + photo) }}" class="photo">
         {% endif %}
-        <div class="details">
-            <p><b>Цена:</b> {{ price }}</p>
-            <p><b>Дата обновления:</b> {{ date }}</p>
-            <p><b>Время обновления:</b> {{ time }}</p>
-        </div>
+        <p><b>Цена:</b> {{ price }}</p>
+        <p><b>Дата обновления:</b> {{ date }}</p>
+        <p><b>Время обновления:</b> {{ time }}</p>
     </div>
 
+    <a class="admin-link" href="{{ url_for('record') }}">📅 Записаться к мастеру</a>
     <a class="admin-link" href="{{ url_for('admin') }}">🔐 Войти как админ</a>
-
 </body>
 </html>

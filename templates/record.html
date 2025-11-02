@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Запись к мастеру | Lashes Nurzhan</title>
+    <style>
+        body {
+            background-color: #fff0f6;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 40px;
+        }
+        h1 { color: #d63384; }
+        form {
+            background-color: white;
+            display: inline-block;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+        }
+        input, select {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 250px;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+        }
+        button {
+            background-color: #d63384;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+        }
+        button:hover { background-color: #b11e69; }
+        a { display: block; margin-top: 15px; color: #d63384; text-decoration: none; }
+    </style>
+</head>
+<body>
+    <h1>📅 Запись к мастеру Lashes Nurzhan</h1>
+    <form method="POST" action="/record">
+        <input type="text" name="name" placeholder="Ваше имя" required>
+        <input type="text" name="phone" placeholder="Телефон" required>
+
+        <select name="effect" required>
+            <option value="">Выберите эффект ресниц</option>
+            {% for e in effects %}
+                <option value="{{ e }}">{{ Классика }}</option>
+                <option value="{{ e }}">{{ 2D }}</option>
+                <option value="{{ e }}">{{ 3D }}</option>
+                <option value="{{ e }}">{{ Лучики }}</option>
+                <option value="{{ e }}">{{ Мокрый }}</option>
+                <option value="{{ e }}">{{ Лисий }}</option>
+                <option value="{{ e }}">{{ Кукольный }}</option>
+            {% endfor %}
+        </select>
+
+        <select name="master" required>
+            <option value="">Выберите мастера</option>
+            {% for m in masters %}
+                <option value="{{ m }}">{{ Топ мастер }}</option>
+                <option value="{{ m }}">{{  Мастер }}</option>
+                <option value="{{ m }}">{{ Мастер }}</option>
+                <option value="{{ m }}">{{ Стажер }}</option>
+                <option value="{{ m }}">{{ Ученица }}</option>
+            {% endfor %}
+        </select>
+
+        <input type="date" name="date" required>
+        <input type="time" name="time" required>
+
+        <button type="submit">Записаться</button>
+    </form>
+    <a href="/">← На главную</a>
+</body>
+</html>
