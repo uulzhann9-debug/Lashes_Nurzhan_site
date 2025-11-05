@@ -1,42 +1,89 @@
-PS C:\Users\Amin_Stors\Desktop\Ноhfesdeshjdgjvnbvngbвая папка\htmlНовая папка\Новая папка\Lashes_nurzhan> git add templates/record.html
-PS C:\Users\Amin_Stors\Desktop\Ноhfesdeshjdgjvnbvngbвая папка\htmlНовая папка\Новая папка\Lashes_nurzhan> git commit -m "Полностью исправлен рекорд штмл"
-On branch main
-Your branch is up to date with 'origin/main'.
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Запись к мастеру | Lashes Nurzhan</title>
+    <style>
+        body {
+            background-color: #fff0f6;
+            font-family: 'Arial', sans-serif;
+            text-align: center;
+            padding: 40px;
+        }
+        h1 {
+            color: #d63384;
+            margin-bottom: 20px;
+        }
+        form {
+            background-color: white;
+            display: inline-block;
+            padding: 25px;
+            border-radius: 15px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+            max-width: 350px;
+        }
+        input, select {
+            display: block;
+            margin: 10px auto;
+            padding: 10px;
+            width: 90%;
+            border: 1px solid #ccc;
+            border-radius: 8px;
+            font-size: 15px;
+        }
+        button {
+            background-color: #d63384;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 16px;
+            margin-top: 10px;
+        }
+        button:hover {
+            background-color: #b11e69;
+        }
+        a {
+            display: block;
+            margin-top: 15px;
+            color: #d63384;
+            text-decoration: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>📅 Запись к мастеру Lashes Nurzhan</h1>
 
-Untracked files:
-  (use "git add <file>..." to include in what will be committed)
-        Lashes_nurzhan/templates/record.html
+    <form method="POST" action="/record">
+        <input type="text" name="name" placeholder="Ваше имя" required>
+        <input type="tel" name="phone" placeholder="Телефон" required>
 
-nothing added to commit but untracked files present (use "git add" to track)
-PS C:\Users\Amin_Stors\Desktop\Ноhfesdeshjdgjvnbvngbвая папка\htmlНовая папка\Новая папка\Lashes_nurzhan> git add -m "удален копия рекорда и исправлен рекорд штмл"
+        <select name="effect" required>
+            <option value="">Выберите эффект ресниц</option>
+            <option value="Классика">Классика</option>
+            <option value="2D">2D</option>
+            <option value="3D">3D</option>
+            <option value="Лисий">Лисий</option>
+            <option value="Кукольный">Кукольный</option>
+            <option value="Мокрый">Мокрый</option>
+            <option value="Лучики">Лучики</option>
+        </select>
 
-error: unknown switch `m'
-usage: git add [<options>] [--] <pathspec>...
+        <select name="master" required>
+            <option value="">Выберите мастера</option>
+            <option value="Топ-мастер">Топ-мастер</option>
+            <option value="Мастер">Мастер</option>
+            <option value="Стажёр">Стажёр</option>
+            <option value="Ученица">Ученица</option>
+        </select>
 
-    -n, --[no-]dry-run    dry run
-    -v, --[no-]verbose    be verbose
+        <input type="date" name="date" required>
+        <input type="time" name="time" required>
 
-    -i, --[no-]interactive
-                          interactive picking
-    -p, --[no-]patch      select hunks interactively
-    -e, --[no-]edit       edit current diff and apply
-    -f, --[no-]force      allow adding otherwise ignored files
-    -u, --[no-]update     update tracked files
-    --[no-]renormalize    renormalize EOL of tracked files (implies -u)
-    -N, --[no-]intent-to-add
-                          record only the fact that the path will be added later
-    -A, --[no-]all        add changes from all tracked and untracked files
-    --[no-]ignore-removal ignore paths removed in the working tree (same as --no-all)
-    --[no-]refresh        don't add, only refresh the index
-    --[no-]ignore-errors  just skip files which cannot be added because of errors
-    --[no-]ignore-missing check if - even missing - files are ignored in dry run
-    --[no-]sparse         allow updating entries outside of the sparse-checkout cone
-    --[no-]chmod (+|-)x   override the executable bit of the listed files
-    --[no-]pathspec-from-file <file>
-                          read pathspec from file
-    --[no-]pathspec-file-nul
-                          with --pathspec-from-file, pathspec elements are separated with NUL character
+        <button type="submit">Записаться</button>
+    </form>
 
-PS C:\Users\Amin_Stors\Desktop\Ноhfesdeshjdgjvnbvngbвая папка\htmlНовая папка\Новая папка\Lashes_nurzhan> git push origin main
-Everything up-to-date
-PS C:\Users\Amin_Stors\Desktop\Ноhfesdeshjdgjvnbvngbвая папка\htmlНовая папка\Новая папка\Lashes_nurzhan> 
+    <a href="/">← На главную</a>
+</body>
+</html>
